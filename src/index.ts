@@ -12,7 +12,9 @@ if (DISCORD_TOKEN === undefined) throw `A Discord bot token is necessary.`
 async function run() {
   let client = new Client({ intents: [GatewayIntentBits.Guilds] }) as Qulient
 
-  client = await loadCommands(client)
+  client.commands = new Collection()
+  const loadedCommands = await loadCommands()
+  loadedCommands.map(c => client.commands.set(c.data.name, c))
 
   client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return

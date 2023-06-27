@@ -9,10 +9,11 @@ import Module = require('node:module')
  * @param client The client to hydrate with commands
  * @returns the hydrated client
  */
-export async function loadCommands(client: Qulient) {
-  client.commands = new Collection()
+export async function loadCommands() {
   const commandsPath = join(__dirname, '../commands')
   const commandFiles = readdirSync(commandsPath).filter(file => file.endsWith('.js'))
+
+  const commands: BotCommand[] = []
 
   for (const file of commandFiles) {
     const filePath = join(commandsPath, file)
@@ -20,11 +21,11 @@ export async function loadCommands(client: Qulient) {
     const command: BotCommand = (await import(filePath)).default.default
 
     if ('data' in command && 'execute' in command) {
-      client.commands.set(command.data.name, command)
+      commands.push(command)
     } else {
       console.error(`Command at ${filePath} is missing required keys.`)
     }
   }
 
-  return client
+  return commands
 }
